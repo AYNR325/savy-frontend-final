@@ -1,0 +1,300 @@
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #002233, #003366, #005599);
+  color: white;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  justify-content: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+input {
+  width: 300px;
+  padding: 12px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  outline: none;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+button {
+  width: 320px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #00ffaa;
+  color: #003366;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #00dd99;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: rgba(0, 34, 51, 0.9);
+}
+
+.navbar h2 {
+  margin: 0;
+  color: #00ffaa;
+}
+
+.camera-icon {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #00ffaa;
+  padding: 8px;
+  border-radius: 15px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.camera-icon:hover {
+  background: #00dd99;
+  transform: scale(1.1);
+}
+
+.camera-switch-icon {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  font-size: 2rem;
+  color: #00ffaa;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+}
+
+.camera-switch-icon:hover {
+  transform: rotate(180deg);
+}
+
+/* Home Page */
+.home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 20px;
+  font-size: 20px;
+}
+
+.profile-btn {
+  background: #009688;
+  padding: 10px 20px;
+  border-radius: 25px;
+  color: white;
+  font-weight: bold;
+}
+
+.camera-button {
+  background: #00e5ff;
+  padding: 15px;
+  border-radius: 50%;
+  margin-top: 20px;
+}
+
+/* Header and Back Button */
+.header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  margin-bottom: 20px;
+  margin-top: 50px;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #00ffaa;
+  color: #003366;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  transition: background-color 0.3s ease, transform 0.2s;
+  width: auto;
+  z-index: 10;
+}
+
+.back-button:hover {
+  background-color: #00dd99;
+  transform: scale(1.05);
+}
+
+/* Camera Page */
+.camera-container img {
+  width: 60%;
+  border-radius: 15px;
+  box-shadow: 0px 0px 10px #00e5ff;
+  margin-bottom: 20px;
+}
+
+/* Processing Page */
+.processing-container {
+  text-align: center;
+}
+
+.audio-wave {
+  width: 300px;
+  height: 80px;
+  background: url('waveform-image.png');
+  background-size: cover;
+  margin-top: 20px;
+}
+
+/* Updated Camera Styling */
+.camera-box {
+  width: 50%;
+  max-width: 380px;
+  aspect-ratio: 4 / 3;
+  border: 3px solid #00ffaa;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0px 4px 15px rgba(0, 255, 170, 0.3);
+  position: relative;
+}
+
+.camera-feed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-instruction {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #00ffaa;
+  text-align: center;
+}
+
+.camera-button, .switch-button {
+  width: 200px;
+  padding: 12px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 8px;
+  background: #00ffaa;
+  color: #003366;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.camera-button:hover, .switch-button:hover {
+  background: #00dd99;
+  transform: scale(1.05);
+}
+
+.camera-switch-icon {
+  font-size: 35px;
+  color: #00ffaa;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: transform 0.3s;
+}
+
+.camera-switch-icon:hover {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 768px) {
+  .camera-box {
+    width: 80%;
+  }
+}
+
+.button-container {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 60px;
+  }
+  
+  .back-button {
+    font-size: 14px;
+    padding: 8px 14px;
+    left: 5px;
+    top: 5px;
+  }
+
+  .camera-container img {
+    width: 80%;
+  }
+  .audio-wave {
+    width: 250px;
+  }
+  
+  .camera-box {
+    width: 80%;
+  }
+  
+  .button-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .camera-button, .switch-button {
+    width: 200px;
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .back-button {
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+}
+
+
