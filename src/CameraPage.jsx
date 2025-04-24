@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft, FaCamera, FaRedo, FaRobot,FaSearch, FaHeartbeat  } from "react-icons/fa";
 
-function CameraPage() {
+const CameraPage = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const navigate = useNavigate();
@@ -42,13 +42,10 @@ function CameraPage() {
     canvas.height = videoRef.current.videoHeight;
     ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
 
-    // Convert to Data URL and store in localStorage
     const imageData = canvas.toDataURL("image/png");
     localStorage.setItem("capturedImage", imageData);
 
-    stopCamera(); // Stop camera after capturing
-
-    // Navigate to description page
+    stopCamera();
     speak("Picture captured, processing now.");
     setTimeout(() => navigate("/Page1"), 1000);
   };
@@ -73,17 +70,17 @@ function CameraPage() {
       console.error("Speech recognition not supported.");
       return;
     }
-
+  
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.lang = "en-US";
     recognition.interimResults = false;
-
+  
     recognition.onresult = (event) => {
       const transcript =
         event.results[event.results.length - 1][0].transcript.toLowerCase();
       console.log("Recognized:", transcript);
-
+  
       if (transcript.includes("take picture")) {
         captureImage();
       } else if (
@@ -97,26 +94,44 @@ function CameraPage() {
         switchCamera();
       } else if (transcript.includes("back") || transcript.includes("go home")) {
         goBackToHome();
+      } else if (
+        transcript.includes("object finder") ||
+        transcript.includes("find object") ||
+        transcript.includes("object") ||
+        transcript.includes("find ") 
+      ) {
+        speak("Opening object finder.");
+        stopCamera();
+        setTimeout(() => navigate("/ObjectFinder"), 1000);
+      } else if (
+        transcript.includes("ai assistant") ||
+        transcript.includes("health assistant") ||
+        transcript.includes("chatbot") ||
+        transcript.includes("talk to assistant")
+      ) {
+        speak("Opening AI health assistant.");
+        stopCamera();
+        setTimeout(() => navigate("/AIHealthAssistant"), 1000);
       }
     };
-
+  
     recognition.start();
   };
-
+  
   const goBackToHome = () => {
     stopCamera();
     speak("Going back to home page");
     setTimeout(() => navigate("/"), 1000);
   };
 
+
   return (
     <div className="container">
       <button className="back-button" onClick={goBackToHome}>
-        <FaArrowLeft /> Back
+        <FaArrowLeft />
       </button>
-      
-      <h1>Camera Page</h1>
-      
+  
+      {/* Camera Preview */}
       <div className="camera-box">
         <video ref={videoRef} className="camera-feed" autoPlay></video>
       </div>
@@ -124,16 +139,39 @@ function CameraPage() {
       <p className="camera-instruction">
         Say "Take Picture" to capture or say "{isFrontCamera ? "Back Camera" : "Front Camera"}" to toggle
       </p>
-      <div className="button-container">
-        <button className="camera-button" onClick={captureImage}>
-          Take Picture
-        </button>
-        <button className="switch-button" onClick={switchCamera}>
-          {isFrontCamera ? "Back Camera" : "Front Camera"}
-        </button>
+  
+      {/* Styled Button Layout */}
+      <div className="button-group">
+        <div className="row">
+          <button onClick={captureImage} className="styled-button">
+            <FaCamera size={20} />
+            <span>Take Picture</span>
+          </button>
+  
+          <button onClick={switchCamera} className="styled-button">
+            <FaRedo size={20} />
+            <span>{isFrontCamera ? "Back Camera" : "Front Camera"}</span>
+          </button>
+        </div>
+        <button 
+  onClick={() => navigate("/AIHealthAssistant")} 
+  className="chatbot-button"
+>
+  <FaRobot size={30} />
+</button>
+  
+        <div className="row center">
+          <button onClick={() => navigate("/ObjectFinder")} className="styled-button">
+            <FaSearch size={20} />
+            <span>Object Finder</span>
+          </button>
+        </div>
       </div>
     </div>
   );
-}
+  
+};
+
+
 
 export default CameraPage;
