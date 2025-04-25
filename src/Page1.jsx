@@ -484,7 +484,7 @@ function Page1() {
     if (!capturedImage) {
       if (currentRetry < 3) {
         console.warn("⏳ Image not available yet, retrying...");
-        setTimeout(() => processImage(mode, currentRetry + 1), 500);
+        setTimeout(() => processImage(mode, language, currentRetry + 1), 500);
       } else {
         console.error("❌ No image available. Please capture again.");
         alert("No image available. Please capture again.");
@@ -592,7 +592,7 @@ function Page1() {
           const backoffTime = Math.min(1000 * Math.pow(2, currentRetry), 10000);
           console.log(`Retrying in ${backoffTime / 1000} seconds...`);
           await sleep(backoffTime);
-          processImage(mode, currentRetry + 1);
+          processImage(mode, language, currentRetry + 1);
         } else {
           alert(
             "Request timed out after multiple attempts. Please try again later."
@@ -604,7 +604,7 @@ function Page1() {
           const backoffTime = Math.min(1000 * Math.pow(2, currentRetry), 10000);
           console.log(`Retrying in ${backoffTime / 1000} seconds...`);
           await sleep(backoffTime);
-          processImage(mode, currentRetry + 1);
+          processImage(mode, language, currentRetry + 1);
         } else {
           alert(
             "Processing failed after multiple attempts. Please try again later."

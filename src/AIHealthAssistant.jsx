@@ -4,14 +4,14 @@
 //     const [chatHistory, setChatHistory] = useState([]);
 //     const [question, setQuestion] = useState("");
 //     const [loading, setLoading] = useState(false);
-    
+
 //     const askQuestion = async (query) => {
 //         const userQuestion = query || question.trim();
 //         if (!userQuestion) {
 //             alert("Please enter a question!");
 //             return;
 //         }
-        
+
 //         const newChat = [...chatHistory, { type: "user", text: userQuestion }];
 //         setChatHistory(newChat);
 //         setQuestion("");
@@ -26,7 +26,7 @@
 
 //             if (!response.ok) throw new Error("Server error");
 //             const data = await response.json();
-            
+
 //             setChatHistory([...newChat, { type: "ai", text: data.answer }]);
 //             setLoading(false);
 //         } catch (error) {
@@ -217,7 +217,6 @@
 //     const isRecognizing = useRef(false);
 //     const [textInput, setTextInput] = useState("");
 
-
 //     useEffect(() => {
 //         initVoiceRecognition();
 //     }, []);
@@ -305,39 +304,38 @@
 
 //     const speakText = (text) => {
 //         const synth = window.speechSynthesis;
-    
+
 //         // Stop recognition if it's running
 //         if (recognitionRef.current && isRecognizing.current) {
 //             recognitionRef.current.abort();  // Force stop immediately
 //             isRecognizing.current = false;
 //             console.log("Recognition aborted before speaking.");
 //         }
-    
+
 //         // Cancel any ongoing speech
 //         if (synth.speaking) {
 //             synth.cancel();
 //         }
-    
+
 //         const speech = new SpeechSynthesisUtterance(text);
 //         speech.lang = "en-US";
 //         speech.rate = 1;
 //         speech.pitch = 1;
-    
+
 //         speech.onstart = () => {
 //             console.log("Speech started.");
 //         };
-    
+
 //         speech.onend = () => {
 //             console.log("Speech ended. Restarting recognition...");
 //             setTimeout(() => {
 //                 restartRecognition();
 //             }, 1000); // slight delay for mic to become ready
 //         };
-    
+
 //         synth.speak(speech);
 //     };
-    
-    
+
 //     const clearHistory = async () => {
 //         try {
 //             await fetch("https://ai-chatbot-woj4.onrender.com/clear_history", { method: "POST" });
@@ -420,220 +418,387 @@ import React, { useState, useEffect, useRef } from "react";
 import { FaPaperPlane } from "react-icons/fa";
 
 const AIHealthAssistant = () => {
-    const [chatHistory, setChatHistory] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const recognitionRef = useRef(null);
-    const isRecognizing = useRef(false);
-    const [textInput, setTextInput] = useState("");
+  const [chatHistory, setChatHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const recognitionRef = useRef(null);
+  const isRecognizing = useRef(false);
+  const [textInput, setTextInput] = useState("");
 
-    useEffect(() => {
-        initVoiceRecognition();
-    }, []);
+  useEffect(() => {
+    initVoiceRecognition();
+  }, []);
 
-    const initVoiceRecognition = () => {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert("Your browser does not support speech recognition.");
-            return;
-        }
+  const initVoiceRecognition = () => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Your browser does not support speech recognition.");
+      return;
+    }
 
-        const recognition = new SpeechRecognition();
-        recognition.lang = "en-US";
-        recognition.continuous = false;
-        recognition.interimResults = false;
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
 
-        recognition.onstart = () => {
-            isRecognizing.current = true;
-        };
-
-        recognition.onresult = (event) => {
-            const spokenText = event.results[0][0].transcript;
-            handleQuestion(spokenText);
-        };
-
-        recognition.onerror = (event) => {
-            console.error("Recognition error:", event.error);
-            isRecognizing.current = false;
-        };
-
-        recognition.onend = () => {
-            isRecognizing.current = false;
-            if (!loading) restartRecognition();
-        };
-
-        recognitionRef.current = recognition;
-        recognition.start();
+    recognition.onstart = () => {
+      isRecognizing.current = true;
     };
 
-    const restartRecognition = () => {
-        setTimeout(() => {
-            if (recognitionRef.current && !isRecognizing.current && !loading) {
-                try {
-                    recognitionRef.current.start();
-                } catch (err) {
-                    console.warn("Restart error:", err.message);
-                }
-            }
-        }, 1000);
+    recognition.onresult = (event) => {
+      const spokenText = event.results[0][0].transcript;
+      handleQuestion(spokenText);
     };
 
-    const handleQuestion = async (userQuestion) => {
-        if (!userQuestion) return;
+    recognition.onerror = (event) => {
+      console.error("Recognition error:", event.error);
+      isRecognizing.current = false;
+    };
 
-        const newChat = [...chatHistory, { type: "user", text: userQuestion }];
-        setChatHistory(newChat);
-        setLoading(true);
+    recognition.onend = () => {
+      isRecognizing.current = false;
+      if (!loading) restartRecognition();
+    };
 
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  const restartRecognition = () => {
+    setTimeout(() => {
+      if (recognitionRef.current && !isRecognizing.current && !loading) {
         try {
-            const response = await fetch("https://ai-chatbot-woj4.onrender.com/health_query", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ question: userQuestion }),
-            });
-
-            if (!response.ok) throw new Error("Server error");
-            const data = await response.json();
-
-            const aiResponse = data.answer;
-            setChatHistory((prev) => [...prev, { type: "ai", text: aiResponse }]);
-            setLoading(false);
-            speakText(aiResponse);
-        } catch (error) {
-            console.error("Fetch error:", error);
-            setChatHistory((prev) => [...prev, { type: "ai", text: "Error fetching response." }]);
-            setLoading(false);
-            speakText("Sorry, there was an error getting the response.");
+          recognitionRef.current.start();
+        } catch (err) {
+          console.warn("Restart error:", err.message);
         }
+      }
+    }, 1000);
+  };
+
+  const handleQuestion = async (userQuestion) => {
+    if (!userQuestion) return;
+
+    const newChat = [...chatHistory, { type: "user", text: userQuestion }];
+    setChatHistory(newChat);
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        "https://ai-chatbot-woj4.onrender.com/health_query",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: userQuestion }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Server error");
+      const data = await response.json();
+
+      const aiResponse = data.answer;
+      setChatHistory((prev) => [...prev, { type: "ai", text: aiResponse }]);
+      setLoading(false);
+      speakText(aiResponse);
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setChatHistory((prev) => [
+        ...prev,
+        { type: "ai", text: "Error fetching response." },
+      ]);
+      setLoading(false);
+      speakText("Sorry, there was an error getting the response.");
+    }
+  };
+
+  const speakText = (text) => {
+    const synth = window.speechSynthesis;
+
+    if (recognitionRef.current && isRecognizing.current) {
+      recognitionRef.current.abort();
+      isRecognizing.current = false;
+    }
+
+    if (synth.speaking) synth.cancel();
+
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+
+    speech.onend = () => {
+      setTimeout(() => {
+        restartRecognition();
+      }, 1000);
     };
 
-    const speakText = (text) => {
-        const synth = window.speechSynthesis;
+    synth.speak(speech);
+  };
 
-        if (recognitionRef.current && isRecognizing.current) {
-            recognitionRef.current.abort();
-            isRecognizing.current = false;
-        }
+  return (
+    //         <div style={{
+    //             backgroundColor: "transparent",
+    //             height: "100vh",
+    //             padding: "20px",
+    //             display: "flex",
+    //             flexDirection: "column",
+    //             alignItems: "center",
+    //             color: "white"
+    //         }}>
+    //             <div style={{
+    //                 backgroundColor: "rgba(0,0,0,0.2)",
+    //                 borderRadius: "20px",
+    //                 padding: "20px",
+    //                 width: "90%",
+    //                 maxWidth: "400px",
+    //                 height: "70%",
+    //                 overflowY: "auto",
+    //                 marginBottom: "20px",
+    //                 backdropFilter: "blur(5px)"
+    //             }}>
+    //                {chatHistory.map((chat, index) => (
+    //   <div
+    //     key={index}
+    //     style={{
+    //       display: 'flex',
+    //       justifyContent: chat.type === 'user' ? 'flex-start' : 'flex-end',
+    //       marginBottom: '10px',
+    //     }}
+    //   >
+    //     <div
+    //       style={{
+    //         background: chat.type === 'user' ? '#007bff' : 'rgba(255, 255, 255, 0.1)',
+    //         color: 'white',
+    //         padding: '10px 15px',
+    //         borderRadius: '20px',
+    //         maxWidth: '70%',
+    //         wordWrap: 'break-word',
+    //         borderTopLeftRadius: chat.type === 'user' ? '0' : '20px',
+    //         borderTopRightRadius: chat.type === 'user' ? '20px' : '0',
+    //       }}
+    //     >
+    //       {chat.text}
+    //     </div>
+    //   </div>
+    // ))}
 
-        if (synth.speaking) synth.cancel();
+    //                 {loading && <p style={{ color: "#bbb" }}>Thinking...</p>}
+    //             </div>
 
-        const speech = new SpeechSynthesisUtterance(text);
-        speech.lang = "en-US";
+    //             <form
+    //                 onSubmit={(e) => {
+    //                     e.preventDefault();
+    //                     if (textInput.trim()) {
+    //                         handleQuestion(textInput.trim());
+    //                         setTextInput("");
+    //                     }
+    //                 }}
+    //                 style={{
+    //                     display: "flex",
+    //                     alignItems: "center",
+    //                     justifyContent: "center",
+    //                     width: "90%",
+    //                     maxWidth: "400px",
+    //                     backgroundColor: "rgba(0,0,0,0.2)",
+    //                     borderRadius: "25px",
+    //                     padding: "10px 15px",
+    //                     gap: "10px",
+    //                     backdropFilter: "blur(5px)"
+    //                 }}
+    //             >
+    //                 <input
+    //                     type="text"
+    //                     value={textInput}
+    //                     onChange={(e) => setTextInput(e.target.value)}
+    //                     placeholder="Type a message ..."
+    //                     style={{
+    //                         flex: 1,
+    //                         backgroundColor: "transparent",
+    //                         border: "none",
+    //                         outline: "none",
+    //                         color: "white",
+    //                         fontSize: "16px"
+    //                     }}
+    //                 />
+    //                 <button
+    //                     type="submit"
+    //                     style={{
+    //                         backgroundColor: "#007bff",
+    //                         border: "none",
+    //                         borderRadius: "50%",
+    //                         width: "40px",
+    //                         height: "40px",
+    //                         display: "flex",
+    //                         alignItems: "center",
+    //                         justifyContent: "center",
+    //                         cursor: "pointer",
+    //                         boxShadow: "0 0 10px #007bff"
+    //                     }}
+    //                 >
+    //                     <FaPaperPlane color="white" size={16} />
+    //                 </button>
+    //             </form>
+    //         </div>
 
-        speech.onend = () => {
-            setTimeout(() => {
-                restartRecognition();
-            }, 1000);
-        };
+    // <div style={{
+    //     minHeight: "100dvh", // better than height: 100vh
+    //     display: "flex",
+    //     flexDirection: "column",
+    //     // justifyContent: "space-between", // pushes footer/form down
+    //     padding: "10px",
+    //     background:"transparent",
+    //     color: "white",
+    //     boxSizing: "border-box",
 
-        synth.speak(speech);
-    };
-
-    return (
-        <div style={{
-            backgroundColor: "transparent",
-            height: "100vh",
-            padding: "20px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            color: "white"
-        }}>
-            <div style={{
-                backgroundColor: "rgba(0,0,0,0.2)",
+    //   }}>
+    // <div
+    // className="chat-bot-container"
+    //   style={{
+    //     height: "100dvh",
+    //     display: "flex",
+    //     flexDirection: "column",
+    //     padding: "10px",
+    //     background: "transparent",
+    //     color: "white",
+    //     boxSizing: "border-box",
+    //     justifyContent: "space-between",
+        
+    //   }}
+    // >
+    <div 
+  style={{
+    minHeight: "100vh",
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center", // Center horizontally
+    // justifyContent: "center", // Center vertically
+    padding: "20px",
+    background: "transparent",
+    color: "white",
+    boxSizing: "border-box",
+    position: "absolute", // Add this
+    top: 0,              // Add this
+    left: 0,             // Add this
+    right: 0,            // Add this
+    bottom: 0,           // Add this
+  }}
+>
+      {/*     
+      <div
+        style={{
+          backgroundColor: "rgba(0,0,0,0.2)",
+          borderRadius: "20px",
+          padding: "15px",
+          width: "100%", // take full width
+          maxWidth: "500px",
+          height: "65dvh", // responsive height
+          overflowY: "auto",
+          marginBottom: "15px",
+          backdropFilter: "blur(5px)",
+          boxSizing: "border-box",
+        }}
+      > */}
+      <div
+        style={{
+          backgroundColor: "rgba(0,0,0,0.2)",
+          borderRadius: "20px",
+          padding: "15px",
+          width: "100%",
+          maxWidth: "500px",
+          flex:"1", 
+          overflowY: "auto",
+          marginBottom: "15px",
+          backdropFilter: "blur(5px)",
+          boxSizing: "border-box",
+        }}
+      >
+        {chatHistory.map((chat, index) => (
+          <div
+            key={index}
+            style={{
+              display: "flex",
+              justifyContent: chat.type === "user" ? "flex-start" : "flex-end",
+              marginBottom: "10px",
+            }}
+          >
+            <div
+              style={{
+                background:
+                  chat.type === "user" ? "#007bff" : "rgba(255, 255, 255, 0.1)",
+                color: "white",
+                padding: "10px 15px",
                 borderRadius: "20px",
-                padding: "20px",
-                width: "90%",
-                maxWidth: "400px",
-                height: "70%",
-                overflowY: "auto",
-                marginBottom: "20px",
-                backdropFilter: "blur(5px)"
-            }}>
-               {chatHistory.map((chat, index) => (
-  <div
-    key={index}
-    style={{
-      display: 'flex',
-      justifyContent: chat.type === 'user' ? 'flex-start' : 'flex-end',
-      marginBottom: '10px',
-    }}
-  >
-    <div
-      style={{
-        background: chat.type === 'user' ? '#007bff' : 'rgba(255, 255, 255, 0.1)',
-        color: 'white',
-        padding: '10px 15px',
-        borderRadius: '20px',
-        maxWidth: '70%',
-        wordWrap: 'break-word',
-        borderTopLeftRadius: chat.type === 'user' ? '0' : '20px',
-        borderTopRightRadius: chat.type === 'user' ? '20px' : '0',
-      }}
-    >
-      {chat.text}
-    </div>
-  </div>
-))}
-
-
-                {loading && <p style={{ color: "#bbb" }}>Thinking...</p>}
-            </div>
-
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    if (textInput.trim()) {
-                        handleQuestion(textInput.trim());
-                        setTextInput("");
-                    }
-                }}
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: "90%",
-                    maxWidth: "400px",
-                    backgroundColor: "rgba(0,0,0,0.2)",
-                    borderRadius: "25px",
-                    padding: "10px 15px",
-                    gap: "10px",
-                    backdropFilter: "blur(5px)"
-                }}
+                maxWidth: "70%",
+                wordWrap: "break-word",
+                borderTopLeftRadius: chat.type === "user" ? "0" : "20px",
+                borderTopRightRadius: chat.type === "user" ? "20px" : "0",
+              }}
             >
-                <input
-                    type="text"
-                    value={textInput}
-                    onChange={(e) => setTextInput(e.target.value)}
-                    placeholder="Type a message ..."
-                    style={{
-                        flex: 1,
-                        backgroundColor: "transparent",
-                        border: "none",
-                        outline: "none",
-                        color: "white",
-                        fontSize: "16px"
-                    }}
-                />
-                <button
-                    type="submit"
-                    style={{
-                        backgroundColor: "#007bff",
-                        border: "none",
-                        borderRadius: "50%",
-                        width: "40px",
-                        height: "40px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                        boxShadow: "0 0 10px #007bff"
-                    }}
-                >
-                    <FaPaperPlane color="white" size={16} />
-                </button>
-            </form>
-        </div>
-    );
+              {chat.text}
+            </div>
+          </div>
+        ))}
+
+        {loading && <p style={{ color: "#bbb" }}>Thinking...</p>}
+      </div>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (textInput.trim()) {
+            handleQuestion(textInput.trim());
+            setTextInput("");
+          }
+        }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          maxWidth: "500px",
+          backgroundColor: "rgba(0,0,0,0.2)",
+          borderRadius: "25px",
+          padding: "8px 12px",
+          gap: "10px",
+          backdropFilter: "blur(5px)",
+          boxSizing: "border-box",
+        }}
+      >
+        <input
+          type="text"
+          value={textInput}
+          onChange={(e) => setTextInput(e.target.value)}
+          placeholder="Type a message ..."
+          style={{
+            flex: 1,
+            backgroundColor: "transparent",
+            border: "none",
+            outline: "none",
+            color: "white",
+            fontSize: "16px",
+            minWidth: 0, // prevents overflow
+          }}
+        />
+
+        <button
+          type="submit"
+          style={{
+            backgroundColor: "#007bff",
+            border: "none",
+            borderRadius: "50%",
+            width: "40px",
+            height: "40px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: "0 0 10px #007bff",
+          }}
+        >
+          <FaPaperPlane color="white" size={16} />
+        </button>
+      </form>
+    </div>
+  );
 };
 
 export default AIHealthAssistant;
