@@ -86,7 +86,7 @@ Savy is a comprehensive platform designed to enhance the daily lives of visually
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/nsavy-app.git
+git clone https://github.com/AYNR325/savy-frontend-final.git
 cd nsavy-app
 ```
 
